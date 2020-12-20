@@ -1,13 +1,13 @@
 window.onload = init;
 
 function init() {
-  var center = ol.proj.transform([108.15219145246553, 16.076152616052678], 'EPSG:4326', 'EPSG:3857'); //initial position of map
+  var center = ol.proj.transform([108.15219145246553, 16.076152616052678], 'EPSG:4326', 'EPSG:3857'); //khởi tạo vị trí ban đầu của map
   var view = new ol.View({
     center: center,
     zoom: 16
   });
 
-  //raster layer on map
+  //thêm các layler cho map (gồm 1 layer hiểm thị map và 1 layer hiển thị các marker)
   var OSMBaseLayer = new ol.layer.Tile({
     source: new ol.source.OSM()
   });
@@ -24,8 +24,22 @@ function init() {
     controls: [new ol.control.FullScreen(), new ol.control.Zoom()]
   });
 
+  
+
+  var data = [];
+  map.on('click', function (e) {
+    const coor = ({
+      Lon: e.coordinate[0] / 111319.4907,// (111319.4907) offset kinh độ( vì tọa độ bị sai lệch)
+      Lat: e.coordinate[1] / 112808.9586// tương tự là offset vĩ độ
+    })
+    data.push(coor);// push checkpoint vừa mới click chuột vào mảng data
+    console.log(coor);
+    addPointGeom(data);// add các checkpoint đã add vào data vào map
+  })
+
+  //hàm thêm marker được chọn vào map
   function addPointGeom(data) {
-    data.forEach(function (item) { //iterate through array...
+    data.forEach(function (item) { //trong javascript sử dụng forEach thay cho vòng lặp for để duyệt toàn bộ các giá trị trong mảng data
       var longitude = item.Lon,
         latitude = item.Lat,
         iconFeature = new ol.Feature({
@@ -47,16 +61,5 @@ function init() {
       straitSource.addFeature(iconFeature);
     });
   }
-
-  var data = [];
-  map.on('click', function (e) {
-    const coor = ({
-      Lon: e.coordinate[0] / 111319.4907,
-      Lat: e.coordinate[1] / 112808.9586
-    })
-    data.push(coor);
-    console.log(coor);
-    addPointGeom(data);
-  })
 
 }
