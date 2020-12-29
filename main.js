@@ -24,8 +24,25 @@ function init() {
     controls: [new ol.control.FullScreen(), new ol.control.Zoom()]
   });
 
-  
+  function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
+    var R = 6371; // Radius of the earth in km
+    var dLat = deg2rad(lat2 - lat1);  // deg2rad below
+    var dLon = deg2rad(lon2 - lon1);
+    var a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2)
+      ;
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    var d = R * c; // Distance in km
+    return d;
+  }
 
+  function deg2rad(deg) {
+    return deg * (Math.PI / 180)
+  }
+
+  var distance = 0;
   var data = [];
   map.on('click', function (e) {
     const coor = ({
@@ -35,8 +52,16 @@ function init() {
     data.push(coor);// push checkpoint vừa mới click chuột vào mảng data
     console.log(coor);
     addPointGeom(data);// add các checkpoint đã add vào data vào map
+    //tính khoảng cách 2 điểm
+    distance = distance + getDistanceFromLatLonInKm(data[data.length-1].Lat,data[data.length-1].Lon,data[data.length-2].Lat,data[data.length-2].Lon)
+    distance = roundToTwo(distance)// làm tròn khoảng cách lên 2 chữ số
+    $("#distance").text("Distance: "  + distance + "km"); //jquery display HTML
   })
 
+  //hàm làm tròn đến 2 chữ số thập phân
+  function roundToTwo(num) {    
+    return +(Math.round(num + "e+2")  + "e-2");
+  }
   //hàm thêm marker được chọn vào map
   function addPointGeom(data) {
     data.forEach(function (item) { //trong javascript sử dụng forEach thay cho vòng lặp for để duyệt toàn bộ các giá trị trong mảng data
