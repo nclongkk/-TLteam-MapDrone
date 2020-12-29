@@ -51,20 +51,44 @@ function init() {
     })
     data.push(coor);// push checkpoint vừa mới click chuột vào mảng data
     console.log(coor);
-    addPointGeom(data);// add các checkpoint đã add vào data vào map
+    insertMiddlePoint(data[data.length-2],data[data.length-1],0.0002)
+    addPointGeom(coor);// add các checkpoint đã add vào data vào map
     //tính khoảng cách 2 điểm
     distance = distance + getDistanceFromLatLonInKm(data[data.length-1].Lat,data[data.length-1].Lon,data[data.length-2].Lat,data[data.length-2].Lon)
     distance = roundToTwo(distance)// làm tròn khoảng cách lên 2 chữ số
     $("#distance").text("Distance: "  + distance + "km"); //jquery display HTML
   })
+  function insertMiddlePoint(coor1,coor2,k){
+    let distance = Math.sqrt(Math.pow((coor2.Lon-coor1.Lon),2) +Math.pow((coor2.Lat-coor1.Lat),2))
+    let n = Math.floor(distance/k)
+    for (i = 1; i <= n; i++) {
+      insertelement(coor1,coor2,i*k)
+    }
+    
+  }
+  function insertelement(coor1,coor2,k){
+
+    let x2 = coor2.Lon - coor1.Lon;
+    let y2 = coor2.Lat - coor1.Lat;
+    let delta = (1 + Math.pow((y2/x2),2))*(k*k)
+    let xi = ( Math.sign(x2)*Math.sqrt(delta))/ (1+ Math.pow((y2/x2),2))
+    let yi = (xi*y2/x2)
+    var coorInsert = ({
+      Lon : xi + coor1.Lon,
+      Lat : yi + coor1.Lat
+    })
+    addPointGeom(coorInsert)
+  }
+
+
 
   //hàm làm tròn đến 2 chữ số thập phân
   function roundToTwo(num) {    
     return +(Math.round(num + "e+2")  + "e-2");
   }
+  
   //hàm thêm marker được chọn vào map
-  function addPointGeom(data) {
-    data.forEach(function (item) { //trong javascript sử dụng forEach thay cho vòng lặp for để duyệt toàn bộ các giá trị trong mảng data
+  function addPointGeom(item) {
       var longitude = item.Lon,
         latitude = item.Lat,
         iconFeature = new ol.Feature({
@@ -84,7 +108,6 @@ function init() {
         });
       iconFeature.setStyle(iconStyle);
       straitSource.addFeature(iconFeature);
-    });
   }
 
 }
