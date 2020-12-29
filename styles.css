@@ -1,6 +1,10 @@
 html{
   box-sizing: border-box;
 }
+#Date{
+  text-align: center;
+  font-size: large;
+}
 .map {
     height: 620px;
     width: 75%;
